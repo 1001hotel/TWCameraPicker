@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		6C35E6321EF3EE7500596EFB /* c02_auto@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C35E62E1EF3EE7500596EFB /* c02_auto@2x.png */; };
+		6C35E6331EF3EE7500596EFB /* c02_auto@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C35E62F1EF3EE7500596EFB /* c02_auto@3x.png */; };
+		6C35E6341EF3EE7500596EFB /* c02_open@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C35E6301EF3EE7500596EFB /* c02_open@2x.png */; };
+		6C35E6351EF3EE7500596EFB /* c02_open@3x.png in Resources */ = {isa = PBXBuildFile; fileRef = 6C35E6311EF3EE7500596EFB /* c02_open@3x.png */; };
 		6C7947851EF276F80048D2A6 /* CameraPicker.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C7947831EF276F80048D2A6 /* CameraPicker.m */; };
 		6C7947861EF276F80048D2A6 /* CameraPicker.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6C7947841EF276F80048D2A6 /* CameraPicker.xib */; };
 		6C79478B1EF277410048D2A6 /* CLLocation+GPSDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 6C7947881EF277410048D2A6 /* CLLocation+GPSDictionary.m */; };
@@ -34,6 +38,10 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		6C35E62E1EF3EE7500596EFB /* c02_auto@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "c02_auto@2x.png"; path = "TWCameraPicker/Images/c02_auto@2x.png"; sourceTree = "<group>"; };
+		6C35E62F1EF3EE7500596EFB /* c02_auto@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "c02_auto@3x.png"; path = "TWCameraPicker/Images/c02_auto@3x.png"; sourceTree = "<group>"; };
+		6C35E6301EF3EE7500596EFB /* c02_open@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "c02_open@2x.png"; path = "TWCameraPicker/Images/c02_open@2x.png"; sourceTree = "<group>"; };
+		6C35E6311EF3EE7500596EFB /* c02_open@3x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; name = "c02_open@3x.png"; path = "TWCameraPicker/Images/c02_open@3x.png"; sourceTree = "<group>"; };
 		6C7947821EF276F80048D2A6 /* CameraPicker.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CameraPicker.h; path = TWCameraPicker/CameraPicker.h; sourceTree = "<group>"; };
 		6C7947831EF276F80048D2A6 /* CameraPicker.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = CameraPicker.m; path = TWCameraPicker/CameraPicker.m; sourceTree = "<group>"; };
 		6C7947841EF276F80048D2A6 /* CameraPicker.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; name = CameraPicker.xib; path = TWCameraPicker/CameraPicker.xib; sourceTree = "<group>"; };
@@ -96,6 +104,10 @@
 		6C7947901EF283240048D2A6 /* Images */ = {
 			isa = PBXGroup;
 			children = (
+				6C35E62E1EF3EE7500596EFB /* c02_auto@2x.png */,
+				6C35E62F1EF3EE7500596EFB /* c02_auto@3x.png */,
+				6C35E6301EF3EE7500596EFB /* c02_open@2x.png */,
+				6C35E6311EF3EE7500596EFB /* c02_open@3x.png */,
 				6C7947911EF2852B0048D2A6 /* c02@2x.png */,
 				6C7947921EF2852B0048D2A6 /* c02@3x.png */,
 				6C7947931EF2852B0048D2A6 /* c03@2x.png */,
@@ -216,9 +228,12 @@
 			files = (
 				6C7947A61EF2852B0048D2A6 /* c05@3x.png in Resources */,
 				6C7947AC1EF2852B0048D2A6 /* c19@3x.png in Resources */,
+				6C35E6331EF3EE7500596EFB /* c02_auto@3x.png in Resources */,
 				6C7947861EF276F80048D2A6 /* CameraPicker.xib in Resources */,
 				6CB152741EF2478E0059EC9A /* LaunchScreen.storyboard in Resources */,
 				6CB152711EF2478E0059EC9A /* Assets.xcassets in Resources */,
+				6C35E6321EF3EE7500596EFB /* c02_auto@2x.png in Resources */,
+				6C35E6341EF3EE7500596EFB /* c02_open@2x.png in Resources */,
 				6C7947AA1EF2852B0048D2A6 /* c18@3x.png in Resources */,
 				6C7947A01EF2852B0048D2A6 /* c02@3x.png in Resources */,
 				6CB1526F1EF2478E0059EC9A /* Main.storyboard in Resources */,
@@ -226,6 +241,7 @@
 				6C7947A11EF2852B0048D2A6 /* c03@2x.png in Resources */,
 				6C7947A71EF2852B0048D2A6 /* c17@2x.png in Resources */,
 				6C7947A21EF2852B0048D2A6 /* c03@3x.png in Resources */,
+				6C35E6351EF3EE7500596EFB /* c02_open@3x.png in Resources */,
 				6C79479F1EF2852B0048D2A6 /* c02@2x.png in Resources */,
 				6C7947A51EF2852B0048D2A6 /* c05@2x.png in Resources */,
 				6C7947A91EF2852B0048D2A6 /* c18@2x.png in Resources */,
