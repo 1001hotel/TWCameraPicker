@@ -29,8 +29,8 @@ s.name         = "TWCameraPicker"
 
   s.source       = { :git => "https://github.com/1001hotel/TWCameraPicker.git", :tag => s.version.to_s }
 
-  s.source_files  = "TWCameraPicker/TWCameraPicker/TWCameraPicker/*.{h,m,xib}"
-  s.resources = "TWCameraPicker/**/*.png"
+  s.source_files  = "TWCameraPicker/TWCameraPicker/TWCameraPicker/*.{h,m}"
+  s.resources = "TWCameraPicker/**/*.png", "TWCameraPicker/TWCameraPicker/TWCameraPicker/*.xib"
 
   s.frameworks = "AVFoundation", "Foundation", "UIKit", "CoreLocation", "MobileCoreServices", "AssetsLibrary" 
 
