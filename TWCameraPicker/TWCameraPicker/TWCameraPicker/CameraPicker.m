@@ -49,6 +49,7 @@ AVCaptureMetadataOutputObjectsDelegate
     
     IBOutlet UIView *_albumView;
     __weak IBOutlet UICollectionView *_albumCollectionView;
+    BOOL _isInProgress;
 }
 - (IBAction)_photoLibrary:(id)sender;
 
@@ -235,6 +236,11 @@ AVCaptureMetadataOutputObjectsDelegate
 }
 - (void)_imagePickerShutter{
     
+    if (_isInProgress) {
+        
+        return;
+    }
+    _isInProgress = YES;
     if (self.camera) {
         [self.camera takePicture];
     }
@@ -558,6 +564,7 @@ AVCaptureMetadataOutputObjectsDelegate
 - (void)viewDidLoad {
     [super viewDidLoad];
     
+    _isInProgress = NO;
     AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
     if(status == AVAuthorizationStatusAuthorized) {
         
