@@ -22,7 +22,6 @@
 
 @interface CameraPicker ()
 <
-UIAlertViewDelegate,
 UINavigationControllerDelegate,
 UIImagePickerControllerDelegate,
 CLLocationManagerDelegate,
@@ -46,6 +45,7 @@ AVCaptureMetadataOutputObjectsDelegate
     UIImagePickerControllerCameraFlashMode _flashMode;
     UIImagePickerControllerQualityType _qualityType;
     __weak IBOutlet UILabel *_alertLabel;
+    __weak IBOutlet UIButton *_shutterButton;
     
     IBOutlet UIView *_albumView;
     __weak IBOutlet UICollectionView *_albumCollectionView;
@@ -81,7 +81,6 @@ AVCaptureMetadataOutputObjectsDelegate
 #else
     [self AVCaptureSwitchCamera];
 #endif
-    
 }
 
 - (void)imagePickerSwitchCamera{
@@ -227,6 +226,7 @@ AVCaptureMetadataOutputObjectsDelegate
 }
 - (IBAction)_shutter:(id)sender {
     
+    _shutterButton.enabled = NO;
 #ifdef CAMERA_TYPE_IMAGE_PICKER
     [self _imagePickerShutter];
     
@@ -247,6 +247,11 @@ AVCaptureMetadataOutputObjectsDelegate
 }
 - (void)_AVCaptureShutter{
     
+    if (_isInProgress) {
+        
+        return;
+    }
+    _isInProgress = YES;
     AVCaptureConnection * videoConnection = [self.stillImageOutput connectionWithMediaType:AVMediaTypeVideo];
     if (!videoConnection) {
         NSLog(@"take photo failed!");
@@ -259,58 +264,58 @@ AVCaptureMetadataOutputObjectsDelegate
         }
         NSData * imageData = [AVCaptureStillImageOutput jpegStillImageNSDataRepresentation:imageDataSampleBuffer];
         UIImage * image = [UIImage imageWithData:imageData];
-        
-        ///*
-        
-        UIDeviceOrientation orien = [[UIDevice currentDevice] orientation];
-        CGImageSourceRef source;
-        source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
-        
-        NSDictionary *metadata = (NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL));
-        CFRelease(source);
-        NSMutableDictionary *metadataAsMutable = [metadata mutableCopy];
-        CGImagePropertyOrientation imagePropertyOrientation = kCGImagePropertyOrientationUp;
-        
-        switch (orien) {
-            case UIDeviceOrientationPortrait:
-                
-                imagePropertyOrientation = kCGImagePropertyOrientationUp;
-                break;
-                
-            case UIDeviceOrientationPortraitUpsideDown:
-                
-                imagePropertyOrientation = kCGImagePropertyOrientationDown;
-                break;
-                
-            case UIDeviceOrientationLandscapeLeft:
-                
-                imagePropertyOrientation = kCGImagePropertyOrientationLeft;
-                break;
-                
-            case UIDeviceOrientationLandscapeRight:
-                
-                imagePropertyOrientation = kCGImagePropertyOrientationRight;
-                break;
-                
-            default:
-                break;
-        }
-        NSDictionary * gpsDict=[self.currentLocation GPSDictionary];
-        [metadataAsMutable setValue:gpsDict forKey:(NSString*)kCGImagePropertyGPSDictionary];
-        
-        [metadataAsMutable setValue:[NSNumber numberWithInteger:imagePropertyOrientation] forKey:(NSString *)kCGImagePropertyOrientation];
-        
-        ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
-        
-        [library writeImageToSavedPhotosAlbum:image.CGImage metadata:metadataAsMutable completionBlock:^(NSURL *assetURL, NSError *error) {
-            
-            
-        }];
-        
-        //*/
         if ([self.delegate respondsToSelector:@selector(cameraPicker:didPickImage:location:createTime:sourceType:)]) {
+            
             [self.delegate cameraPicker:self didPickImage:[self fixOrientation:image] location:self.currentLocation createTime:[self nowString] sourceType:UIImagePickerControllerSourceTypeCamera];
         }
+        
+        if (self.autoSaveToAlbum) {
+            
+            UIDeviceOrientation orien = [[UIDevice currentDevice] orientation];
+            CGImageSourceRef source;
+            source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
+            
+            NSDictionary *metadata = (NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL));
+            CFRelease(source);
+            NSMutableDictionary *metadataAsMutable = [metadata mutableCopy];
+            CGImagePropertyOrientation imagePropertyOrientation = kCGImagePropertyOrientationUp;
+            
+            switch (orien) {
+                case UIDeviceOrientationPortrait:
+                    
+                    imagePropertyOrientation = kCGImagePropertyOrientationUp;
+                    break;
+                    
+                case UIDeviceOrientationPortraitUpsideDown:
+                    
+                    imagePropertyOrientation = kCGImagePropertyOrientationDown;
+                    break;
+                    
+                case UIDeviceOrientationLandscapeLeft:
+                    
+                    imagePropertyOrientation = kCGImagePropertyOrientationLeft;
+                    break;
+                    
+                case UIDeviceOrientationLandscapeRight:
+                    
+                    imagePropertyOrientation = kCGImagePropertyOrientationRight;
+                    break;
+                    
+                default:
+                    break;
+            }
+            NSDictionary * gpsDict = [self.currentLocation GPSDictionary];
+            [metadataAsMutable setValue:gpsDict forKey:(NSString*)kCGImagePropertyGPSDictionary];
+            
+            [metadataAsMutable setValue:[NSNumber numberWithInteger:imagePropertyOrientation] forKey:(NSString *)kCGImagePropertyOrientation];
+            
+            ALAssetsLibrary *library = [[ALAssetsLibrary alloc] init];
+            
+            [library writeImageToSavedPhotosAlbum:image.CGImage metadata:metadataAsMutable completionBlock:^(NSURL *assetURL, NSError *error) {
+                
+                
+            }];
+    }
     }];
 }
 
@@ -337,7 +342,6 @@ AVCaptureMetadataOutputObjectsDelegate
     return scaledImage;
 }
 -(void)loadLocalPhotos{
-    
     
     ALAssetsLibrary *libarary = [[ALAssetsLibrary alloc] init];
     self.photos = [NSMutableArray array];
@@ -368,15 +372,13 @@ AVCaptureMetadataOutputObjectsDelegate
         
     }];
 }
-- (void)_showNoAcceessToPhotoLibrary{
+- (void)_showNoAcceessToCameraWithTitle:(NSString *)title{
     
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"在设置—途遇图记—权限中开启相机权限，以正常使用拍照、图像文字编译、创建图记等功能。" message:@"" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:title.length > 0 ? title : @"在设置—途遇图记—权限中开启相机权限，以正常使用拍照、图像文字编译、创建图记等功能。" message:@"" preferredStyle:UIAlertControllerStyleAlert];
     
     UIAlertAction *ok = [UIAlertAction actionWithTitle:@"去设置" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
         
-        //很多应用需要访问相机或者相册，但有时用户会拒绝访问，所以下次再需要相关权限时，就要提示用户去设置开启权限。 NSURL *url = [NSURL URLWithString:@"prefs:root=com.1001nights.Gallery"];iOS10及之后不能正常使用
-        
-        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];//ios8以上可用
+        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];
         if ([[UIApplication sharedApplication] canOpenURL:url]) {
             
             [[UIApplication sharedApplication] openURL:url];
@@ -388,8 +390,7 @@ AVCaptureMetadataOutputObjectsDelegate
     [alert addAction:cancel];
     [alert addAction:ok];
     
-    [self presentViewController:alert animated:YES completion:nil];
-    
+    [[UIApplication sharedApplication].keyWindow.rootViewController presentViewController:alert animated:YES completion:nil];
 }
 - (NSString *)nowString{
     
@@ -509,7 +510,6 @@ AVCaptureMetadataOutputObjectsDelegate
 }
 - (void)_AVCaptureSessionModel{
     
-    
     //获取摄像设备
     self.device = [AVCaptureDevice defaultDeviceWithMediaType:AVMediaTypeVideo];
     //创建输入流
@@ -539,56 +539,16 @@ AVCaptureMetadataOutputObjectsDelegate
         
     }
     
-    
-    
     //    output.metadataObjectTypes = @[AVMetadataObjectTypeQRCode];
-    
     
     AVCaptureVideoPreviewLayer *layer = [AVCaptureVideoPreviewLayer layerWithSession:self.session];
     layer.videoGravity = AVLayerVideoGravityResizeAspectFill;
-    layer.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);//self.view.layer.bounds;
+    layer.frame = CGRectMake(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
     [self.view.layer insertSublayer:layer atIndex:0];
     [self.view addSubview:_cameraOverLayerView];
-    //开始捕获
-    //    [self.session startRunning];
 }
 
-#pragma mark -
-#pragma mark - lifeCycle
-- (instancetype)init{
-    
-    if (self = [super init]) {
-    }
-    return self;
-}
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    
-    _isInProgress = NO;
-    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
-    if(status == AVAuthorizationStatusAuthorized) {
-        
-    } else if(status == AVAuthorizationStatusDenied){
-        
-//        [self _showNoAcceessToPhotoLibrary];
-        UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"访问相机失败"
-                                                        message:@"未成功获取相机使用权限"
-                                                       delegate:self
-                                              cancelButtonTitle:@"取消"
-                                              otherButtonTitles:@"去设置", nil];
-        [alert show];
-
-    } else if(status == AVAuthorizationStatusRestricted){
-    } else if(status == AVAuthorizationStatusNotDetermined){
-        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-            if(granted){
-                
-                
-            } else {
-                return;
-            }
-        }];
-    }
+- (void)_initCameraPicker{
     
     self.locationManager = [[CLLocationManager alloc]                                                                                 init];
     [self.locationManager setDelegate:self];
@@ -596,7 +556,53 @@ AVCaptureMetadataOutputObjectsDelegate
     [self.locationManager setDesiredAccuracy:kCLLocationAccuracyBest];
     [self.locationManager startUpdatingLocation];
     
-    _cameraOverLayerView.frame = [UIScreen mainScreen].bounds;
+#ifdef CAMERA_TYPE_IMAGE_PICKER
+    [self _imagePickerModel];
+#else
+    [self _AVCaptureSessionModel];
+#endif
+    
+}
+
+
+#pragma mark -
+#pragma mark - lifeCycle
+- (void)viewDidLoad {
+    
+    [super viewDidLoad];
+    
+    _isInProgress = NO;
+    AVAuthorizationStatus status = [AVCaptureDevice authorizationStatusForMediaType:AVMediaTypeVideo];
+    //用户已经授权应用访问照片数据
+    if(status == AVAuthorizationStatusAuthorized) {
+        
+        [self _initCameraPicker];
+    }
+    //用户已经明确否认了这一照片数据的应用程序访问
+    else if(status == AVAuthorizationStatusDenied){
+        
+        [self _showNoAcceessToCameraWithTitle:@""];
+    }
+    //此应用程序没有被授权访问的照片数据。可能是家长控制权限
+    else if(status == AVAuthorizationStatusRestricted){
+     
+        [self _showNoAcceessToCameraWithTitle:@""];
+    }
+    //用户尚未做出选择这个应用程序的问候
+    else if(status == AVAuthorizationStatusNotDetermined){
+        
+        [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
+            if(granted){
+                
+                [self _initCameraPicker];
+            }
+            else {
+                
+                [self _showNoAcceessToCameraWithTitle:@""];
+            }
+        }];
+    }
+    /*
     NSUserDefaults *st = [NSUserDefaults standardUserDefaults];
     
     if (![[st objectForKey:@"isShowAlertLabel"] boolValue]) {
@@ -606,10 +612,12 @@ AVCaptureMetadataOutputObjectsDelegate
         [st synchronize];
         [NSTimer scheduledTimerWithTimeInterval:5 target:self selector:@selector(_removeAlertLabel) userInfo:nil repeats:NO];
     }
+    //*/
     
+    _cameraOverLayerView.frame = [UIScreen mainScreen].bounds;
+
     float height = SCREEN_HEIGHT - _actionView.frame.size.height - _settingView.frame.size.height;
     float oringalY = 0;
-    //    _settingView.frame.size.height + _settingView.frame.size.height;
     UIColor *color = [UIColor  colorWithRed:1 green:1 blue:1 alpha:0.35];
     
     _layerImageView.frame = CGRectMake(0, oringalY, SCREEN_WIDTH, height);
@@ -629,13 +637,6 @@ AVCaptureMetadataOutputObjectsDelegate
     UIView *Hline2 = [[UIView alloc] initWithFrame:CGRectMake(0, height / 3.0 * 2.0 + oringalY, SCREEN_WIDTH, 0.5)];
     Hline2.backgroundColor = color;
     [_layerImageView addSubview:Hline2];
-    
-#ifdef CAMERA_TYPE_IMAGE_PICKER
-    [self _imagePickerModel];
-#else
-    [self _AVCaptureSessionModel];
-#endif
-    
 }
 - (void)viewWillAppear:(BOOL)animated{
     
@@ -648,9 +649,7 @@ AVCaptureMetadataOutputObjectsDelegate
     [[UIApplication sharedApplication] setStatusBarHidden:NO];
     
     [super viewWillDisappear:YES];
-    
 }
-
 - (void)viewDidAppear:(BOOL)animated{
     
     [super viewDidAppear:YES];
@@ -672,7 +671,6 @@ AVCaptureMetadataOutputObjectsDelegate
 #endif
     [self.locationManager stopUpdatingLocation];
 }
-
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     
@@ -685,8 +683,8 @@ AVCaptureMetadataOutputObjectsDelegate
 
         self.view = nil;// 目的是再次进入时能够重新加载调用viewDidLoad函数。
     }
-    // Dispose of any resources that can be recreated.
 }
+
 
 - (IBAction)_photoLibrary:(id)sender {
     
@@ -737,6 +735,7 @@ AVCaptureMetadataOutputObjectsDelegate
 - (void)_presentPictureCamera{
     
     if (!_camera) {
+        
         _camera = [[UIImagePickerController alloc] init];
         _camera.sourceType = UIImagePickerControllerSourceTypeCamera;
         _camera.modalPresentationStyle = UIModalPresentationOverCurrentContext;
@@ -746,6 +745,7 @@ AVCaptureMetadataOutputObjectsDelegate
         _camera.cameraOverlayView = _cameraOverLayerView;
         
         if ([[UIScreen mainScreen] bounds].size.height > 480) {
+            
             _camera.cameraViewTransform = CGAffineTransformMakeTranslation(0, 49);
         }
         
@@ -760,6 +760,20 @@ AVCaptureMetadataOutputObjectsDelegate
     }
 }
 
+//调整焦距
+-(void)adjustFocalDistance:(UIButton *)sender
+{
+    float kCameraScale = 1.0;
+   
+    //改变焦距
+    AVCaptureConnection *connect=[self.dataOutput connectionWithMediaType:AVMediaTypeVideo];
+    [CATransaction begin];
+    [CATransaction setAnimationDuration:0.2];
+//    [_focalBtn setTitle:[NSString stringWithFormat:@"%dX",(int)kCameraScale] forState:UIControlStateNormal];
+    [_previewLayer setAffineTransform:CGAffineTransformMakeScale(kCameraScale, kCameraScale)];
+    connect.videoScaleAndCropFactor=kCameraScale;
+    [CATransaction commit];
+}
 
 #pragma mark -
 #pragma mark - UIImagePickerControllerDelegate
@@ -771,16 +785,9 @@ AVCaptureMetadataOutputObjectsDelegate
         
         
         UIDeviceOrientation orien = [[UIDevice currentDevice] orientation];
-        //        CGImageSourceRef source;
-        ////        source = CGImageSourceCreateWithData((CFDataRef)imageData, NULL);
-        //
-        //        NSDictionary *metadata = (NSDictionary *) CFBridgingRelease(CGImageSourceCopyPropertiesAtIndex(source, 0, NULL));
-        //        CFRelease(source);
-        //        NSMutableDictionary *metadataAsMutable = [metadata mutableCopy];
-        
         
         CGImagePropertyOrientation imagePropertyOrientation = kCGImagePropertyOrientationUp;
-        //
+  
         switch (orien) {
             case UIDeviceOrientationPortrait:
                 
@@ -809,8 +816,9 @@ AVCaptureMetadataOutputObjectsDelegate
         NSDictionary *dict = [info objectForKey:UIImagePickerControllerMediaMetadata];
         NSMutableDictionary *metadata = [NSMutableDictionary dictionaryWithDictionary:dict];
         
-        NSDictionary * gpsDict=[self.currentLocation GPSDictionary];//CLLocation对象转换为NSDictionary
+        NSDictionary * gpsDict = [self.currentLocation GPSDictionary];//CLLocation对象转换为NSDictionary
         if (metadata&& gpsDict) {
+            
             [metadata setValue:gpsDict forKey:(NSString*)kCGImagePropertyGPSDictionary];
         }
         [metadata setValue:[NSNumber numberWithInteger:imagePropertyOrientation] forKey:(NSString *)kCGImagePropertyOrientation];
@@ -841,10 +849,11 @@ AVCaptureMetadataOutputObjectsDelegate
                      CLLocation *loc = nil;
                      //GPS数据
                      NSDictionary *GPSDict=[imageMetadata objectForKey:(NSString*)kCGImagePropertyGPSDictionary];
-                     if (GPSDict!=nil) {
-                         loc=[GPSDict locationFromGPSDictionary];
+                     if (GPSDict != nil) {
+                         loc = [GPSDict locationFromGPSDictionary];
                      }
                      else{
+                         
                          NSLog(@"此照片没有GPS信息");
                      }
                      
@@ -852,8 +861,7 @@ AVCaptureMetadataOutputObjectsDelegate
                      NSMutableDictionary *EXIFDictionary =[[imageMetadata objectForKey:(NSString *)kCGImagePropertyExifDictionary]mutableCopy];
                      NSString * dateTimeOriginal=[[EXIFDictionary objectForKey:(NSString*)kCGImagePropertyExifDateTimeOriginal] mutableCopy];
                      NSDateFormatter *dateFormatter = [[NSDateFormatter alloc] init];
-                     [dateFormatter setDateFormat:@"yyyy:MM:dd HH:mm:ss"];//yyyy-MM-dd HH:mm:ss
-                     //                     NSDate *date = [dateFormatter dateFromString:dateTimeOriginal];
+                     [dateFormatter setDateFormat:@"yyyy:MM:dd HH:mm:ss"];
                      
                      if ([self.delegate respondsToSelector:@selector(cameraPicker:didPickImage:location:createTime:sourceType:)]) {
                          UIImage *image = [self fixOrientation:[info objectForKey:UIImagePickerControllerOriginalImage]];
@@ -874,11 +882,13 @@ AVCaptureMetadataOutputObjectsDelegate
 - (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker{
     
     if (picker.sourceType == UIImagePickerControllerSourceTypeCamera) {
+        
         [self dismissViewControllerAnimated:YES completion:nil];
     }
     else if (picker.sourceType == UIImagePickerControllerSourceTypePhotoLibrary){
         
         if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+            
             self.camera.sourceType = UIImagePickerControllerSourceTypeCamera;
         }
         else{
@@ -1053,24 +1063,6 @@ AVCaptureMetadataOutputObjectsDelegate
     
 }
 
-
-#pragma mark -
-#pragma mark - UIAlertViewDelegate
-- (void)alertView:(UIAlertView *)alertView clickedButtonAtIndex:(NSInteger)buttonIndex{
-    
-    
-    if (buttonIndex == 1) {
-        
-        NSURL *url = [NSURL URLWithString:UIApplicationOpenSettingsURLString];//ios8以上可用
-        if ([[UIApplication sharedApplication] canOpenURL:url]) {
-            
-            [[UIApplication sharedApplication] openURL:url];
-        }
- 
-    }
-//    [self dismissViewControllerAnimated:YES completion:nil];
-    
-}
 
 @end
 

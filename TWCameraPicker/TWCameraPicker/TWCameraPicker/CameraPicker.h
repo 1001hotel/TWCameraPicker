@@ -27,5 +27,7 @@
 
 @property (nonatomic, assign)id<CameraPickerDelegate>delegate;
 @property (nonatomic, assign)UIImagePickerControllerSourceType sourceType;
+@property (nonatomic, assign)BOOL autoSaveToAlbum;
+
 
 @end

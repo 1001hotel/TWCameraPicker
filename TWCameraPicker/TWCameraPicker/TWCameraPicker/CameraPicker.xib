@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="16D32" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="13196" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="13173"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -19,6 +19,7 @@
                 <outlet property="_flashBtn" destination="JOS-rI-K6n" id="kpm-Fn-7sC"/>
                 <outlet property="_layerImageView" destination="M4Q-jY-3RL" id="zxo-Qd-8e1"/>
                 <outlet property="_settingView" destination="fNs-Wc-DDv" id="6hy-ef-Xi1"/>
+                <outlet property="_shutterButton" destination="oIB-Xf-Jy8" id="yKQ-KR-Ur8"/>
                 <outlet property="_switchSceneBtn" destination="3kf-od-Fyw" id="WIG-SR-cUw"/>
                 <outlet property="_timeDelayBtn" destination="6L8-xa-tYR" id="VEW-y7-oQQ"/>
                 <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
