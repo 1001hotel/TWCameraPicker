@@ -592,13 +592,34 @@ AVCaptureMetadataOutputObjectsDelegate
     else if(status == AVAuthorizationStatusNotDetermined){
         
         [AVCaptureDevice requestAccessForMediaType:AVMediaTypeVideo completionHandler:^(BOOL granted) {
-            if(granted){
+            
+            if ([NSThread isMainThread]) {
                 
-                [self _initCameraPicker];
+                if(granted){
+                    
+                    [self _initCameraPicker];
+                }
+                else {
+                    
+//                    [self _showNoAcceessToCameraWithTitle:@""];
+                    [self dismissViewControllerAnimated:YES completion:nil];
+
+                }
             }
-            else {
+            else{
                 
-                [self _showNoAcceessToCameraWithTitle:@""];
+                dispatch_sync(dispatch_get_main_queue(), ^{
+                    
+                    if(granted){
+                        
+                        [self _initCameraPicker];
+                    }
+                    else {
+                        
+//                        [self _showNoAcceessToCameraWithTitle:@""];
+                        [self dismissViewControllerAnimated:YES completion:nil];
+                    }
+                });
             }
         }];
     }
